@@ -17,11 +17,10 @@ URINAL_STALL_STRINGS = ['Urinal 1', 'Urinal 2', 'Urinal 3']
 class ToiletBooker(tk.Frame):
 
     def generate_notable_times(self):
-        generated_string = "Noteable Times: "
+        generated_string = "*** Noteable Times *** "
         
-        generated_string += "Toilet Stall: " + self.achievements_stall['date'] + " Logged on: " + self.achievements_stall['value']
-        
-        generated_string += "Urinal: " + self.achievements_urinal['date'] + " Logged on: " + self.achievements_urinal['value']
+        generated_string += "Toilet: " + str(self.achievements_stall['date']) + " Timer: " + self.convert_seconds_to_time(self.achievements_stall['value'])
+        generated_string += " | Urinal: " + str(self.achievements_urinal['date']) + " Timer: " + self.convert_seconds_to_time(self.achievements_urinal['value'])
         
         return generated_string
 
@@ -53,7 +52,7 @@ class ToiletBooker(tk.Frame):
         frame_achievement.config(relief = RIDGE, borderwidth = 3)
 
         self.achievement_string = StringVar()
-        self.achievement_string.set(self.generate_notable_times())
+        self.achievement_string.set(self.generate_notable_times)
         tk.Label(frame_achievement, textvariable=self.achievement_string, font=("Arial", 18, "bold"), 
             justify=LEFT, text="Noteable Times:").pack(side=TOP, padx=3, pady=3, fill=X, expand=True, anchor='s')
                 
@@ -129,7 +128,6 @@ class ToiletBooker(tk.Frame):
 
         tk.Label(frame_Urinals_side, font=("Arial", 56, "bold"), justify=LEFT, text=" ").pack(side=BOTTOM, padx=3, pady=3, fill=BOTH, expand=True, anchor='n')
 
-
         self.update_clock() # initial time display
 
     def convert_seconds_to_time(self, input_seconds):
@@ -141,7 +139,8 @@ class ToiletBooker(tk.Frame):
 
     def update_clock(self):
         self.clock.set(time.strftime("%H:%M:%S"))
-        
+        self.achievement_string.set(self.generate_notable_times())
+
         if self.stall_1_var.get() != TOILET_STALL_STRINGS[0]:
             # Occupied, update timer. 
             self.timers['stall_1'] += 1
@@ -196,7 +195,22 @@ class ToiletBooker(tk.Frame):
                 self.urinal_3_var.set("IN USE\n" + self.convert_seconds_to_time(self.timers['urinal_3']))
 
         self.root.after(1000, self.update_clock)
+
+    def log_possible_achivement(self, type, stall_number, value): 
+        current_date = datetime.now()
         
+        if type == '__book_stall__':
+            if value > int(self.achievements_stall['value']):
+                self.achievements_stall['date'] = current_date.strftime("%Y-%m-%d")
+                self.achievements_stall['value'] = value
+                logging.debug("Wow! New Stall Record: " + self.achievements_stall['date'] + " Timer: " + str(self.achievements_stall['value']))
+        elif type == '__book_urinal__':
+            if value > int(self.achievements_urinal['value']):
+                self.achievements_urinal['date'] = current_date.strftime("%Y-%m-%d")
+                self.achievements_urinal['value'] = value            
+                logging.debug("Wow! New Urinal Record: " + self.achievements_urinal['date'] + " Timer: " + str(self.achievements_urinal['value']))
+
+
 
     def handleButtonPress(self, command, stall_number):
         
@@ -210,6 +224,8 @@ class ToiletBooker(tk.Frame):
                     logging.debug("Releasing Toilet Stall 1!")
                     self.button_stall_1.config(bg="green")
                     self.stall_1_var.set("Toilet Stall 1")
+                    self.log_possible_achivement(command, stall_number, self.timers['stall_1'])
+
                     self.timers['stall_1'] = 0
 
             elif stall_number == 2: 
@@ -221,6 +237,7 @@ class ToiletBooker(tk.Frame):
                     logging.debug("Releasing Toilet Stall 2!")
                     self.button_stall_2.config(bg="green")
                     self.stall_2_var.set("Toilet Stall 2")
+                    self.log_possible_achivement(command, stall_number, self.timers['stall_2'])
                     self.timers['stall_2'] = 0
                     
             elif stall_number == 3: 
@@ -232,8 +249,11 @@ class ToiletBooker(tk.Frame):
                     logging.debug("Releasing Toilet Stall 3!")
                     self.button_stall_3.config(bg="green")
                     self.stall_3_var.set("Toilet Stall 3")
+                    self.log_possible_achivement(command, stall_number, self.timers['stall_3'])
                     self.timers['stall_3'] = 0
-                
+
+
+
         elif command == '__book_urinal__':
             if stall_number == 1:
                 if self.urinal_1_var.get() == "Urinal 1":
@@ -244,6 +264,7 @@ class ToiletBooker(tk.Frame):
                     logging.debug("Releasing Urinal 1!")
                     self.button_urinal_1.config(bg="green")
                     self.urinal_1_var.set("Urinal 1")
+                    self.log_possible_achivement(command, stall_number, self.timers['urinal_1'])
                     self.timers['urinal_1'] = 0
                     
             elif stall_number == 2: 
@@ -255,6 +276,7 @@ class ToiletBooker(tk.Frame):
                     logging.debug("Releasing Urinal 2!")
                     self.button_urinal_2.config( bg="green")
                     self.urinal_2_var.set("Urinal 2")
+                    self.log_possible_achivement(command, stall_number, self.timers['urinal_2'])
                     self.timers['urinal_2'] = 0
                     
             elif stall_number == 3: 
@@ -266,10 +288,12 @@ class ToiletBooker(tk.Frame):
                     logging.debug("Releasing Urinal 3!")
                     self.button_urinal_3.config( bg="green")
                     self.urinal_3_var.set("Urinal 3")
+                    self.log_possible_achivement(command, stall_number, self.timers['urinal_3'])
                     self.timers['urinal_3'] = 0
 
     def __init__(self):
-
+        today = datetime.now()
+        
         logging.basicConfig(level= logging.DEBUG, format=' %(asctime)s - %(levelname)s- %(message)s')
         logging.debug('Start of toiletbooker.py')
         
@@ -281,11 +305,11 @@ class ToiletBooker(tk.Frame):
                         'urinal_2' : 0,
                         'urinal_3' : 0 }
 
-        self.achievements_stall = { 'date' : '', 
-                                    'value' : '' }
+        self.achievements_stall = { 'date' : today.strftime("%Y-%m-%d"), 
+                                    'value' : 0 }
 
-        self.achievements_urinal = { 'date' : '', 
-                                    'value' : '' }
+        self.achievements_urinal = { 'date' : today.strftime("%Y-%m-%d"), 
+                                    'value' : 0 }
                         
         self.setupGUI()
         self.root.mainloop()

@@ -10,17 +10,17 @@ from datetime import datetime, timedelta
 
 VERSION="1.0"
 BUTTON_TEXT_SIZE = 36
-STALL_TIMEOUT = 3600 # 1 Hour
+STALL_TIMEOUT = 1800 # 30 Mins
 TOILET_STALL_STRINGS = ['Toilet Stall 1', 'Toilet Stall 2', 'Toilet Stall 3']
 URINAL_STALL_STRINGS = ['Urinal 1', 'Urinal 2', 'Urinal 3']
 
 class ToiletBooker(tk.Frame):
 
     def generate_notable_times(self):
-        generated_string = "*** Noteable Times *** "
+        generated_string = "*** Record Holders ***\n"
         
         generated_string += "Toilet: " + str(self.achievements_stall['date']) + " Timer: " + self.convert_seconds_to_time(self.achievements_stall['value'])
-        generated_string += " | Urinal: " + str(self.achievements_urinal['date']) + " Timer: " + self.convert_seconds_to_time(self.achievements_urinal['value'])
+        generated_string += "\nUrinal: " + str(self.achievements_urinal['date']) + " Timer: " + self.convert_seconds_to_time(self.achievements_urinal['value'])
         
         return generated_string
 
@@ -52,9 +52,9 @@ class ToiletBooker(tk.Frame):
         frame_achievement.config(relief = RIDGE, borderwidth = 3)
 
         self.achievement_string = StringVar()
-        self.achievement_string.set(self.generate_notable_times)
-        tk.Label(frame_achievement, textvariable=self.achievement_string, font=("Arial", 18, "bold"), 
-            justify=LEFT, text="Noteable Times:").pack(side=TOP, padx=3, pady=3, fill=X, expand=True, anchor='s')
+        self.achievement_string.set(self.generate_notable_times())
+        tk.Label(frame_achievement, textvariable=self.achievement_string, font=("Arial", 14, "bold"),
+            justify=CENTER, text="Noteable Times:").pack(side=TOP, padx=3, pady=3, fill=X, expand=True, anchor='s')
                 
         # Main
         frame_main = tk.Frame(self.root)
@@ -147,6 +147,7 @@ class ToiletBooker(tk.Frame):
             if self.timers['stall_1'] == STALL_TIMEOUT: # hit timeout
                 self.stall_1_var.set(TOILET_STALL_STRINGS[0])
                 self.timers['stall_1'] = 0
+                self.button_stall_1.config(bg="green")
             else:
                 self.stall_1_var.set("IN USE\n" + self.convert_seconds_to_time(self.timers['stall_1']))
 
@@ -155,6 +156,7 @@ class ToiletBooker(tk.Frame):
             if self.timers['stall_2'] == STALL_TIMEOUT:
                 self.stall_2_var.set(TOILET_STALL_STRINGS[1])
                 self.timers['stall_2'] = 0
+                self.button_stall_2.config(bg="green")
             else:
                 self.stall_2_var.set("IN USE\n" + self.convert_seconds_to_time(self.timers['stall_2']))
 
@@ -164,6 +166,7 @@ class ToiletBooker(tk.Frame):
             if self.timers['stall_3'] == STALL_TIMEOUT:
                 self.stall_3_var.set(TOILET_STALL_STRINGS[2])
                 self.timers['stall_3'] = 0
+                self.button_stall_3.config(bg="green")
             else:
                 self.stall_3_var.set("IN USE\n" + self.convert_seconds_to_time(self.timers['stall_3']))
 
@@ -173,6 +176,7 @@ class ToiletBooker(tk.Frame):
             if self.timers['urinal_1'] == STALL_TIMEOUT:
                 self.urinal_1_var.set(URINAL_STALL_STRINGS[0])
                 self.timers['urinal_1'] = 0
+                self.button_urinal_1.config(bg="green")
             else:
                 self.urinal_1_var.set("IN USE\n" + self.convert_seconds_to_time(self.timers['urinal_1']))
 
@@ -182,6 +186,7 @@ class ToiletBooker(tk.Frame):
             if self.timers['urinal_2'] == STALL_TIMEOUT:
                 self.urinal_2_var.set(URINAL_STALL_STRINGS[1])
                 self.timers['urinal_2'] = 0
+                self.button_urinal_2.config(bg="green")
             else:
                 self.urinal_2_var.set("IN USE\n" + self.convert_seconds_to_time(self.timers['urinal_2']))
 
@@ -191,6 +196,7 @@ class ToiletBooker(tk.Frame):
             if self.timers['urinal_3'] == STALL_TIMEOUT:
                 self.urinal_3_var.set(URINAL_STALL_STRINGS[2])
                 self.timers['urinal_3'] = 0
+                self.button_urinal_3.config(bg="green")
             else:
                 self.urinal_3_var.set("IN USE\n" + self.convert_seconds_to_time(self.timers['urinal_3']))
 
